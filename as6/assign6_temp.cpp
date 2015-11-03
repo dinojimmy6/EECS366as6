@@ -14,6 +14,7 @@ Template for Assignment 6-Local Illumination and Shading
 #include <GL/glut.h>
 #include <windows.h>
 #include "glprocs.h"
+#include <fstream>
 
 
 #define PI 3.14159265359
@@ -31,6 +32,22 @@ float secondLightPos[4] = { 7, 7, 7, 1 };
 float diffk[4] = { .005, .005, .005, 1.0 };
 float lightIk2[4] = { 1.0, 1.0, 1.0, 0 };
 float ambient[4] = { .2, .2, .2, 0 };
+
+void materialFileRead(char *fn);
+float ambient_p[3];
+float diffuse_p[3];
+float specular_p[3];
+float specular_exponent_p;
+float ambient_c[3];
+float d_c;
+float Rd_c[3];
+float s_c;
+float f0_c[3];
+float m_c[2];
+float w_c[2];
+
+
+
 
 //Projection, camera contral related declerations
 int WindowWidth,WindowHeight;
@@ -338,4 +355,32 @@ char *shaderFileRead(char *fn) {
 		fclose(fp);
 	}
 	return content;
+}
+
+void materialFileRead(char *fn) {
+	ifstream fp(fn, ios::in);
+	if (!fp || !fp.is_open()) {
+		cout << "Failed to load " << fn << endl;
+		return;
+	}
+
+
+	char type;
+	while (!fp.eof()) {
+		fp >> type;
+		if (type == 'P') {
+			fp >> ambient_p[0] >> ambient_p[1] >> ambient_p[2] >>
+				diffuse_p[0] >> diffuse_p[1] >> diffuse_p[2] >>
+				specular_p[0] >> specular_p[1] >> specular_p[2] >>
+				specular_exponent_p;
+		}
+		else if (type == 'C') {
+			fp >> ambient_c[0] >> ambient_c[1] >> ambient_c[2] >>
+				d_c >> Rd_c[0] >> Rd_c[1] >> Rd_c[2] >>
+				s_c >> f0_c[0] >> f0_c[1] >> f0_c[2] >>
+				m_c[0] >> w_c[0] >> m_c[1] >> w_c[1];
+		}
+	}
+
+	fp.close();
 }
