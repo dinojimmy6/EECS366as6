@@ -26,6 +26,7 @@ GLuint vertex_shader,fragment_shader,p;
 int illuminationMode = 0;
 int shadingMode = 1;
 int lightSource = 0;
+int lightColor = 0;
 float secondLightPos[4] = { 7, 7, 7, 1 };
 float diffk[4] = { .005, .005, .005, 1.0 };
 float lightIk2[4] = { 1.0, 1.0, 1.0, 0 };
@@ -69,6 +70,8 @@ void DisplayFunc(void) {
 	p5 = glGetUniformLocationARB(p, "illumMode");
 	printf("p5 is: %d\n", p5);
 	glUniform1iARB(p5, illuminationMode);
+	p5 = glGetUniformLocationARB(p, "lightSource");
+	glUniform1iARB(p5, lightSource);
 	//GLint p3 = glGetUniformLocationARB(p, "mm.diffuse");
 	//printf("p3 is: %d\n", p3);
 	//glUniform4fvARB(p3, 1, diffk);
@@ -246,6 +249,22 @@ void KeyboardFunc(unsigned char key, int x, int y)
 		{
 			//change color of the secondary light source at each key press, 
 			//light color cycling through pure red, green, blue, and white.
+			if (lightColor == 0) {
+				lightColor = 1;
+				lightIk2[0] = 1.0; lightIk2[1] = 0.0; lightIk2[2] = 0.0;
+			}
+			else if (lightColor == 1) {
+				lightColor = 2;
+				lightIk2[0] = 0.0; lightIk2[1] = 1.0; lightIk2[2] = 0.0;
+			}
+			else if (lightColor == 2) {
+				lightColor = 3;
+				lightIk2[0] = 0.0; lightIk2[1] = 0.0; lightIk2[2] = 1.0;
+			}
+			else if (lightColor == 3) {
+				lightColor = 0;
+				lightIk2[0] = 1.0; lightIk2[1] = 1.0; lightIk2[2] = 1.0;
+			}
 		}
 		break;
 

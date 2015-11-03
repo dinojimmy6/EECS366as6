@@ -5,6 +5,7 @@ varying vec4 Icook;
 varying vec4 Lposition;
 uniform int shadingMode;
 uniform int illumMode;
+uniform int lightSource;
 struct my_light_source 
 {   
    vec4 ambient;              // Aclarri   
@@ -35,13 +36,19 @@ uniform my_light_source mls;
 void main(void)
 {
 
-   vec3 V1 = vec3(gl_ModelViewMatrix * gl_Vertex);       
-   vec3 N1 = normalize(gl_NormalMatrix * gl_Normal);
-   vec4 Lpos = gl_ModelViewMatrix * mls.position;
-   Lposition = Lpos;
-   N = N1;
-   v = V1;
-   //gouraud shading
+	vec3 V1 = vec3(gl_ModelViewMatrix * gl_Vertex);       
+	vec3 N1 = normalize(gl_NormalMatrix * gl_Normal);
+	vec4 Lpos;
+	if(lightSource == 1) {
+		Lpos = gl_ModelViewMatrix * mls.position;
+	}
+	else {
+		Lpos = vec4(0.0, 0.0, 0.0, 0.0);
+	}
+	Lposition = Lpos;
+	N = N1;
+	v = V1;
+	//gouraud shading
 	if(shadingMode < 1) {
 		my_materials mm;
 		mm.ambient = vec4(0.19125, 0.0735, 0.0225, 1.0);
