@@ -312,7 +312,7 @@ int main(int argc, char **argv)
 
 
 	
-
+	materialFileRead("material.dat");
 	setShaders();
 
 	glutMainLoop();
