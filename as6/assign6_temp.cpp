@@ -34,14 +34,14 @@ float lightIk2[4] = { 1.0, 1.0, 1.0, 0 };
 float ambient[4] = { .2, .2, .2, 0 };
 
 void materialFileRead(char *fn);
-float ambient_p[3];
-float diffuse_p[3];
-float specular_p[3];
+float ambient_p[4];
+float diffuse_p[4];
+float specular_p[4];
 float specular_exponent_p;
-float ambient_c[3];
-float d_c;
+float ambient_c[4];
+float diffuse_c[4];
 float Rd_c[3];
-float s_c;
+float specular_c[4];
 float f0_c[3];
 float m_c[2];
 float w_c[2];
@@ -89,14 +89,44 @@ void DisplayFunc(void) {
 	glUniform1iARB(p5, illuminationMode);
 	p5 = glGetUniformLocationARB(p, "lightSource");
 	glUniform1iARB(p5, lightSource);
-	//GLint p3 = glGetUniformLocationARB(p, "mm.diffuse");
-	//printf("p3 is: %d\n", p3);
-	//glUniform4fvARB(p3, 1, diffk);
-	//load projection and viewing transforms
+
+	//Write to material parameter uniforms
+	p1 = glGetUniformLocationARB(p, "mm_p.ambient");
+	glUniform4fvARB(p1, 1, ambient_p);
+
+	p1 = glGetUniformLocationARB(p, "mm_p.diffuse");
+	glUniform4fvARB(p1, 1, diffuse_p);
+
+	p1 = glGetUniformLocationARB(p, "mm_p.specular");
+	glUniform4fvARB(p1, 1, specular_p);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.ambient");
+	glUniform4fvARB(p1, 1, ambient_c);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.diffuse");
+	glUniform4fvARB(p1, 1, diffuse_c);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.specular");
+	glUniform4fvARB(p1, 1, specular_c);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.F0");
+	glUniform3fvARB(p1, 1, f0_c);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.Rd");
+	glUniform3fvARB(p1, 1, Rd_c);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.m");
+	glUniform2fvARB(p1, 1, m_c);
+
+	p1 = glGetUniformLocationARB(p, "mm_c.w");
+	glUniform2fvARB(p1, 1, w_c);
+
+	p5 = glGetUniformLocationARB(p, "mm_p.shininess");
+	glUniform1fARB(p5, specular_exponent_p);
+	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//GLint p1 = glGetUniformLocationARB(p, "gl_LightSource[0].position");
-	//glUniform4fvARB(p1, 1, secondLightPos);
+	
         
 	gluPerspective(60,(GLdouble) WindowWidth/WindowHeight,0.01,10000);
 
@@ -110,6 +140,10 @@ void DisplayFunc(void) {
 	glEnable(GL_DEPTH_TEST);
 	
 	glutSolidTeapot(1);
+	glTranslated(7, 7, 7);
+	if (lightSource == 1) {
+		glutSolidCube(.5);
+	}
 	glutSwapBuffers();
 }
 
@@ -376,11 +410,16 @@ void materialFileRead(char *fn) {
 		}
 		else if (type == 'C') {
 			fp >> ambient_c[0] >> ambient_c[1] >> ambient_c[2] >>
-				d_c >> Rd_c[0] >> Rd_c[1] >> Rd_c[2] >>
-				s_c >> f0_c[0] >> f0_c[1] >> f0_c[2] >>
+				diffuse_c[0] >> diffuse_c[1] >> diffuse_c[2] >>
+				Rd_c[0] >> Rd_c[1] >> Rd_c[2] >>
+				specular_c[0] >> specular_c[1] >> specular_c[2] >> 
+				f0_c[0] >> f0_c[1] >> f0_c[2] >>
 				m_c[0] >> w_c[0] >> m_c[1] >> w_c[1];
 		}
 	}
 
 	fp.close();
+	ambient_p[3] = 1.0; diffuse_p[3] = 1.0; specular_p[3] = 1.0;
+	ambient_c[3] = 1.0; diffuse_c[3] = 1.0; specular_c[3] = 1.0;
+	printf("%f\n", specular_c[0]);
 }

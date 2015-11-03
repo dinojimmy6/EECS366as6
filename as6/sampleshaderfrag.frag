@@ -32,55 +32,43 @@ struct my_materials
    vec4 ambient;     // Acm   
    vec4 diffuse;     // Dcm   
    vec4 specular;    // Scm   
-   float shininess;  // Srm  
+   float shininess;  // Srm
+   vec3 F0;
+   vec3 Rd;
+   vec2 m;
+   vec2 w;  
 };  
 
 
-//my_materials mm;
-//mm.ambient = vec4(0.19125, 0.0735, 0.0225, 1.0);
-//mm.diffuse = vec4(0.7038, 0.27048, 0.0828, 1.0);
-//mm.diffuse = vec4(0.005, 0.005, 0.005,1.0);
-//mm.specular = vec4(0.256777, 0.137622, 0.086014, 1.0);
-//mm.emission = vec4(0.0,0.0,0.0,0.0);
-//mm.shininess = float(12.8);
+uniform my_materials mm_p;
+uniform my_materials mm_c;
 void main(void)
 {
-	my_materials mm;
-	mm.ambient = vec4(0.19125, 0.0735, 0.0225, 0.0);
-	mm.diffuse = vec4(0.7038, 0.27048, 0.0828, 0.0);
-	mm.specular = vec4(0.256777, 0.137622, 0.086014, 0.0);
-	mm.emission = vec4(0.0,0.0,0.0,0.0);
-	mm.shininess = float(12.8);
 	if(shadingMode > 0) {
 		vec3 L = normalize(Lposition.xyz - v);
 		vec3 N1 = normalize(N);
 		vec3 V1 = normalize(v * -1);
 		vec3 H = normalize(L + V1);
 		if(illumMode == 0) {
-			vec4 Idiff = mm.diffuse * mls.diffuse * max(dot(N1,L), 0.0);  
-			Idiff = clamp(Idiff, 0.0, 1.0); 
-			vec4 Ispec = mm.ambient * mls.ambient +  Idiff + mm.specular * mls.intensity * pow(dot(N1, H), mm.shininess);
-			Ispec = clamp(Ispec, 0.0, 1.0); 
+			vec4 Idiff = mm_p.diffuse * mls.diffuse * max(dot(N1,L), 0.0);  
+			//Idiff = clamp(Idiff, 0.0, 1.0); 
+			vec4 Ispec = mm_p.ambient * mls.ambient +  Idiff + mm_p.specular * mls.intensity * pow(dot(N1, H), mm_p.shininess);
+			//Ispec = clamp(Ispec, 0.0, 1.0); 
 			gl_FragColor = Ispec; 
 		}
 		else {
 			//cook model
 			float e = float(2.71828);
 			float pi = 3.141593;
-			float m1 = float(.4);
-			float w1 = float(.4);
-			float m2 = float(.2);
-			float w2 = float(.6);
-			vec3 F0 = vec3(0.755, 0.49, 0.095);
 			float G = min(float(1.0), min(2 * dot(N1, H) * dot(N1, V1) / dot(V1, H), 2 * dot(N1, H) * dot(N1, L) / dot(V1, H)));
 			float alpha = acos(dot(N1, H));
-			float D1 = pow(e, -1 * pow(tan(alpha)/m1, 2)) / (pow(m1, 2) * pow(cos(alpha), 4));
-			float D2 = pow(e, -1 * pow(tan(alpha)/m2, 2)) / (pow(m2, 2) * pow(cos(alpha), 4));
-			float D = D1 * w1 + D2 * w2;
-			vec3 n = (vec3(1.0, 1.0, 1.0) + sqrt(F0)) / (vec3(1.0, 1.0, 1.0) - sqrt(F0)); 
+			float D1 = pow(e, -1 * pow(tan(alpha)/mm_c.m.x, 2)) / (pow(mm_c.m.x, 2) * pow(cos(alpha), 4));
+			float D2 = pow(e, -1 * pow(tan(alpha)/mm_c.m.y, 2)) / (pow(mm_c.m.y, 2) * pow(cos(alpha), 4));
+			float D = D1 * mm_c.w.x + D2 * mm_c.w.y;
+			vec3 n = (vec3(1.0, 1.0, 1.0) + sqrt(mm_c.F0)) / (vec3(1.0, 1.0, 1.0) - sqrt(mm_c.F0)); 
 			vec3 F = (1.0 - pow(1.0 - dot(N1, V1), 5.0)) + n * pow(1.0 - (dot(N1, V1)), 5.0);
 			vec3 temp = D * G * F / (pi * dot(L, N1) * dot(V1, N1));
-			vec4 Ir = mm.ambient * mls.ambient + mls.intensity * vec4(F0, 0.0) * dot(N1, L) * mm.diffuse + mm.specular * vec4(temp, 0.0) * mls.intensity;
+			vec4 Ir = mm_c.ambient * mls.ambient + mls.intensity * vec4(mm_c.Rd, 0.0) * dot(N1, L) * mm_c.diffuse + mm_c.specular * vec4(temp, 0.0) * mls.intensity;
 			gl_FragColor = Ir; 
 		}
 	}
