@@ -23,12 +23,12 @@ using namespace std;
 //Illimunation and shading related declerations
 char *shaderFileRead(char *fn);
 GLuint vertex_shader,fragment_shader,p;
-int illimunationMode = 0;
+int illuminationMode = 0;
 int shadingMode = 1;
 int lightSource = 0;
 float secondLightPos[4] = { 7, 7, 7, 1 };
 float diffk[4] = { .005, .005, .005, 1.0 };
-float lightIk2[4] = { 2.55, 2.55, 2.55, 0 };
+float lightIk2[4] = { 1.0, 1.0, 1.0, 0 };
 float ambient[4] = { .2, .2, .2, 0 };
 
 //Projection, camera contral related declerations
@@ -66,6 +66,9 @@ void DisplayFunc(void) {
 	GLint p5 = glGetUniformLocationARB(p, "shadingMode");
 	printf("p5 is: %d\n", p5);
 	glUniform1iARB(p5, shadingMode);
+	p5 = glGetUniformLocationARB(p, "illumMode");
+	printf("p5 is: %d\n", p5);
+	glUniform1iARB(p5, illuminationMode);
 	//GLint p3 = glGetUniformLocationARB(p, "mm.diffuse");
 	//printf("p3 is: %d\n", p3);
 	//glUniform4fvARB(p3, 1, diffk);
@@ -206,13 +209,13 @@ void KeyboardFunc(unsigned char key, int x, int y)
 		break;
 	case 'w':
 	case 'W':
-		if (illimunationMode == 0)
+		if (illuminationMode == 0)
 		{
-			illimunationMode = 1;
+			illuminationMode = 1;
 		}
 		else
 		{
-			illimunationMode = 0;
+			illuminationMode = 0;
 		}
 		break;
 	case 'e':
